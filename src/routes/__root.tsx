@@ -76,14 +76,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "M2.950_debat3_prot" },
+      { name: "description", content: "M2.950 Debat 3 - Prototip" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "M2.950_debat3_prot" },
+      { property: "og:description", content: "M2.950 Debat 3 - Prototip" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "M2.950_debat3_prot" },
+      { name: "twitter:description", content: "M2.950 Debat 3 - Prototip" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/106e8536-d6d4-41aa-82e9-8bded76553fc/id-preview-2052f731--11280947-0813-4001-b4c8-673fb82efd20.lovable.app-1778439989720.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/106e8536-d6d4-41aa-82e9-8bded76553fc/id-preview-2052f731--11280947-0813-4001-b4c8-673fb82efd20.lovable.app-1778439989720.png" },
     ],
     links: [
       {
