@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Users, CalendarDays, AlertTriangle, BarChart3, Upload, Activity } from "lucide-react";
+import { LayoutDashboard, Users, CalendarDays, AlertTriangle, BarChart3, Upload, Activity, ShieldCheck, Bug, Sparkles } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -13,6 +13,9 @@ const items = [
   { title: "Quadrant setmanal", url: "/quadrant", icon: CalendarDays },
   { title: "Simulador de baixa", url: "/simulador", icon: AlertTriangle },
   { title: "Reporting", url: "/reporting", icon: BarChart3 },
+  { title: "Incidències", url: "/incidencies", icon: Bug },
+  { title: "Previsió de baixes", url: "/previsio", icon: Sparkles },
+  { title: "Dades i consentiments", url: "/dades", icon: ShieldCheck },
 ];
 
 export function AppSidebar() {

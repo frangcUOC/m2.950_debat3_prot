@@ -13,7 +13,10 @@ import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as ReportingRouteImport } from './routes/reporting'
 import { Route as QuadrantRouteImport } from './routes/quadrant'
 import { Route as ProfessionalsRouteImport } from './routes/professionals'
+import { Route as PrevisioRouteImport } from './routes/previsio'
 import { Route as IngestaRouteImport } from './routes/ingesta'
+import { Route as IncidenciesRouteImport } from './routes/incidencies'
+import { Route as DadesRouteImport } from './routes/dades'
 import { Route as IndexRouteImport } from './routes/index'
 
 const SimuladorRoute = SimuladorRouteImport.update({
@@ -36,9 +39,24 @@ const ProfessionalsRoute = ProfessionalsRouteImport.update({
   path: '/professionals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrevisioRoute = PrevisioRouteImport.update({
+  id: '/previsio',
+  path: '/previsio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IngestaRoute = IngestaRouteImport.update({
   id: '/ingesta',
   path: '/ingesta',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IncidenciesRoute = IncidenciesRouteImport.update({
+  id: '/incidencies',
+  path: '/incidencies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DadesRoute = DadesRouteImport.update({
+  id: '/dades',
+  path: '/dades',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -49,7 +67,10 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dades': typeof DadesRoute
+  '/incidencies': typeof IncidenciesRoute
   '/ingesta': typeof IngestaRoute
+  '/previsio': typeof PrevisioRoute
   '/professionals': typeof ProfessionalsRoute
   '/quadrant': typeof QuadrantRoute
   '/reporting': typeof ReportingRoute
@@ -57,7 +78,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dades': typeof DadesRoute
+  '/incidencies': typeof IncidenciesRoute
   '/ingesta': typeof IngestaRoute
+  '/previsio': typeof PrevisioRoute
   '/professionals': typeof ProfessionalsRoute
   '/quadrant': typeof QuadrantRoute
   '/reporting': typeof ReportingRoute
@@ -66,7 +90,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dades': typeof DadesRoute
+  '/incidencies': typeof IncidenciesRoute
   '/ingesta': typeof IngestaRoute
+  '/previsio': typeof PrevisioRoute
   '/professionals': typeof ProfessionalsRoute
   '/quadrant': typeof QuadrantRoute
   '/reporting': typeof ReportingRoute
@@ -76,7 +103,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dades'
+    | '/incidencies'
     | '/ingesta'
+    | '/previsio'
     | '/professionals'
     | '/quadrant'
     | '/reporting'
@@ -84,7 +114,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/dades'
+    | '/incidencies'
     | '/ingesta'
+    | '/previsio'
     | '/professionals'
     | '/quadrant'
     | '/reporting'
@@ -92,7 +125,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/dades'
+    | '/incidencies'
     | '/ingesta'
+    | '/previsio'
     | '/professionals'
     | '/quadrant'
     | '/reporting'
@@ -101,7 +137,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DadesRoute: typeof DadesRoute
+  IncidenciesRoute: typeof IncidenciesRoute
   IngestaRoute: typeof IngestaRoute
+  PrevisioRoute: typeof PrevisioRoute
   ProfessionalsRoute: typeof ProfessionalsRoute
   QuadrantRoute: typeof QuadrantRoute
   ReportingRoute: typeof ReportingRoute
@@ -138,11 +177,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfessionalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/previsio': {
+      id: '/previsio'
+      path: '/previsio'
+      fullPath: '/previsio'
+      preLoaderRoute: typeof PrevisioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ingesta': {
       id: '/ingesta'
       path: '/ingesta'
       fullPath: '/ingesta'
       preLoaderRoute: typeof IngestaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/incidencies': {
+      id: '/incidencies'
+      path: '/incidencies'
+      fullPath: '/incidencies'
+      preLoaderRoute: typeof IncidenciesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dades': {
+      id: '/dades'
+      path: '/dades'
+      fullPath: '/dades'
+      preLoaderRoute: typeof DadesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -157,7 +217,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DadesRoute: DadesRoute,
+  IncidenciesRoute: IncidenciesRoute,
   IngestaRoute: IngestaRoute,
+  PrevisioRoute: PrevisioRoute,
   ProfessionalsRoute: ProfessionalsRoute,
   QuadrantRoute: QuadrantRoute,
   ReportingRoute: ReportingRoute,
