@@ -9,6 +9,9 @@ import {
 } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -113,7 +116,21 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full bg-background">
+          <AppSidebar />
+          <div className="flex-1 flex flex-col min-w-0">
+            <header className="h-14 flex items-center gap-3 border-b bg-card/60 backdrop-blur px-4 sticky top-0 z-10">
+              <SidebarTrigger />
+              <h1 className="font-semibold text-foreground">TornAI · Gestor de Torns Intel·ligent</h1>
+            </header>
+            <main className="flex-1 p-6 overflow-x-hidden">
+              <Outlet />
+            </main>
+          </div>
+          <Toaster />
+        </div>
+      </SidebarProvider>
     </QueryClientProvider>
   );
 }
