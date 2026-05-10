@@ -1,9 +1,10 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Users, CalendarDays, AlertTriangle, BarChart3, Upload, Activity } from "lucide-react";
 import {
-  Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { UserMenu } from "@/components/UserMenu";
 
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -48,6 +49,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-sidebar-border">
+        <UserMenu />
+      </SidebarFooter>
     </Sidebar>
   );
 }
