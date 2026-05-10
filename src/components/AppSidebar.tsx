@@ -5,21 +5,23 @@ import {
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UserMenu } from "@/components/UserMenu";
+import { useI18n } from "@/lib/i18n";
 
 const items = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Ingesta de dades", url: "/ingesta", icon: Upload },
-  { title: "Professionals", url: "/professionals", icon: Users },
-  { title: "Quadrant setmanal", url: "/quadrant", icon: CalendarDays },
-  { title: "Simulador de baixa", url: "/simulador", icon: AlertTriangle },
-  { title: "Reporting", url: "/reporting", icon: BarChart3 },
-  { title: "Incidències", url: "/incidencies", icon: Bug },
-  { title: "Previsió de baixes", url: "/previsio", icon: Sparkles },
-  { title: "Dades i consentiments", url: "/dades", icon: ShieldCheck },
+  { key: "nav.dashboard", url: "/", icon: LayoutDashboard },
+  { key: "nav.ingesta", url: "/ingesta", icon: Upload },
+  { key: "nav.professionals", url: "/professionals", icon: Users },
+  { key: "nav.quadrant", url: "/quadrant", icon: CalendarDays },
+  { key: "nav.simulador", url: "/simulador", icon: AlertTriangle },
+  { key: "nav.reporting", url: "/reporting", icon: BarChart3 },
+  { key: "nav.incidencies", url: "/incidencies", icon: Bug },
+  { key: "nav.previsio", url: "/previsio", icon: Sparkles },
+  { key: "nav.dades", url: "/dades", icon: ShieldCheck },
 ];
 
 export function AppSidebar() {
   const path = useRouterState({ select: (r) => r.location.pathname });
+  const { t } = useI18n();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
@@ -29,21 +31,21 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="font-semibold text-sm">TornAI</span>
-            <span className="text-xs text-muted-foreground">Gestor de Torns</span>
+            <span className="text-xs text-muted-foreground">{t("app.subtitle")}</span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navegació</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav.section")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={path === item.url} tooltip={item.title}>
+                  <SidebarMenuButton asChild isActive={path === item.url} tooltip={t(item.key)}>
                     <Link to={item.url}>
                       <item.icon />
-                      <span>{item.title}</span>
+                      <span>{t(item.key)}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

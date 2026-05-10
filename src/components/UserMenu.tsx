@@ -1,5 +1,6 @@
-import { Moon, Sun, LogOut, User2, Settings2, Monitor } from "lucide-react";
+import { Moon, Sun, LogOut, User2, Settings2, Languages, Check } from "lucide-react";
 import { useTheme } from "@/lib/theme";
+import { useI18n, LANG_LABELS, type Lang } from "@/lib/i18n";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,10 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
-// Sessió simulada (no hi ha auth real)
 const mockSession = {
   name: "Admin Demo",
   email: "admin@tornai.cat",
@@ -22,7 +21,8 @@ const mockSession = {
 };
 
 export function UserMenu() {
-  const { theme, toggle, setTheme } = useTheme();
+  const { theme, toggle } = useTheme();
+  const { lang, setLang, t } = useI18n();
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
@@ -34,10 +34,11 @@ export function UserMenu() {
     .toUpperCase();
 
   const handleLogout = () => {
-    toast.success("Sessió tancada", {
-      description: "S'ha tancat la sessió simulada correctament.",
-    });
+    toast.success(t("user.logout.toast"), { description: t("user.logout.toast.desc") });
   };
+
+  const isDark = theme === "dark";
+  const langs: Lang[] = ["ca", "es", "en"];
 
   return (
     <SidebarMenu>
@@ -63,11 +64,7 @@ export function UserMenu() {
               <Settings2 className="ml-auto opacity-60 group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="right"
-            align="end"
-            className="w-64"
-          >
+          <DropdownMenuContent side="right" align="end" className="w-64">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col gap-1">
                 <p className="text-sm font-semibold">{mockSession.name}</p>
@@ -78,42 +75,34 @@ export function UserMenu() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+
             <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
-              Aparença
+              {t("user.appearance")}
             </DropdownMenuLabel>
-            <div className="flex items-center justify-between px-2 py-1.5">
-              <div className="flex items-center gap-2 text-sm">
-                {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-                <span>Mode fosc</span>
-              </div>
-              <Switch checked={theme === "dark"} onCheckedChange={toggle} />
-            </div>
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              <Sun className="h-4 w-4" />
-              <span>Tema clar</span>
+            <DropdownMenuItem onClick={toggle}>
+              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              <span>{isDark ? t("user.theme.light") : t("user.theme.dark")}</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              <Moon className="h-4 w-4" />
-              <span>Tema fosc</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-                setTheme(prefersDark ? "dark" : "light");
-                toast.info("Tema sincronitzat amb el sistema");
-              }}
-            >
-              <Monitor className="h-4 w-4" />
-              <span>Seguir sistema</span>
-            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal flex items-center gap-1.5">
+              <Languages className="h-3.5 w-3.5" /> {t("user.language")}
+            </DropdownMenuLabel>
+            {langs.map((l) => (
+              <DropdownMenuItem key={l} onClick={() => setLang(l)}>
+                <span className="w-4">{lang === l && <Check className="h-4 w-4" />}</span>
+                <span>{LANG_LABELS[l]}</span>
+              </DropdownMenuItem>
+            ))}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled>
               <User2 className="h-4 w-4" />
-              <span>Perfil (pròximament)</span>
+              <span>{t("user.profile")}</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
               <LogOut className="h-4 w-4" />
-              <span>Tanca la sessió</span>
+              <span>{t("user.logout")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
