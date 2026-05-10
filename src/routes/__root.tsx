@@ -129,6 +129,7 @@ function RootComponent() {
             <header className="h-14 flex items-center gap-3 border-b bg-card/60 backdrop-blur px-4 sticky top-0 z-10">
               <SidebarTrigger />
               <h1 className="font-semibold text-foreground">TornAI · Gestor de Torns Intel·ligent</h1>
+              <div className="ml-auto"><ConsentIndicator /></div>
             </header>
             <main className="flex-1 p-6 overflow-x-hidden">
               <Outlet />
@@ -140,4 +141,23 @@ function RootComponent() {
       </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+function ConsentIndicator() {
+  const accepted = require_useStore_accepted();
+  if (accepted) return null;
+  return (
+    <Link to="/dades" className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/20 transition-colors">
+      <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+      Consentiment de dades pendent
+    </Link>
+  );
+}
+
+function require_useStore_accepted() {
+  const { useStore } = require_store();
+  return useStore((s: { consent: { accepted: boolean } }) => s.consent.accepted);
+}
+function require_store() {
+  return require("@/lib/store") as typeof import("@/lib/store");
 }
