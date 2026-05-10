@@ -13,6 +13,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/lib/theme";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 
 function NotFoundComponent() {
