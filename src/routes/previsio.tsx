@@ -141,8 +141,8 @@ function PrevisioPage() {
                   <li className="flex gap-2"><Sparkles className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" /> Alertes anticipades de risc operatiu</li>
                   <li className="flex gap-2"><Sparkles className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" /> Simulacions de cobertura i recomanacions</li>
                 </ul>
-                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0" onClick={() => { setPremium(true); toast.success("Has activat TornAI Premium (demo)"); }}>
-                  <Crown className="h-4 w-4" /> Actualitza el teu pla
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0" onClick={() => toast.success("Hem rebut la teva sol·licitud", { description: "L'àrea comercial es posarà en contacte amb tu en breu." })}>
+                  <Crown className="h-4 w-4" /> Contacta amb l'àrea comercial
                 </Button>
               </CardContent>
             </Card>

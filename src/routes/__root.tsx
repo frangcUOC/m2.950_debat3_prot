@@ -13,6 +13,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/lib/theme";
+import { I18nProvider, useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 
 function NotFoundComponent() {
@@ -123,34 +124,42 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-      <SidebarProvider>
-        <div className="min-h-screen flex w-full bg-background">
-          <AppSidebar />
-          <div className="flex-1 flex flex-col min-w-0">
-            <header className="h-14 flex items-center gap-3 border-b bg-card/60 backdrop-blur px-4 sticky top-0 z-10">
-              <SidebarTrigger />
-              <h1 className="font-semibold text-foreground">TornAI · Gestor de Torns Intel·ligent</h1>
-              <div className="ml-auto"><ConsentIndicator /></div>
-            </header>
-            <main className="flex-1 p-6 overflow-x-hidden">
-              <Outlet />
-            </main>
-          </div>
-          <Toaster />
-        </div>
-      </SidebarProvider>
+        <I18nProvider>
+          <SidebarProvider>
+            <div className="min-h-screen flex w-full bg-background">
+              <AppSidebar />
+              <div className="flex-1 flex flex-col min-w-0">
+                <header className="h-14 flex items-center gap-3 border-b bg-card/60 backdrop-blur px-4 sticky top-0 z-10">
+                  <SidebarTrigger />
+                  <HeaderTitle />
+                  <div className="ml-auto"><ConsentIndicator /></div>
+                </header>
+                <main className="flex-1 p-6 overflow-x-hidden">
+                  <Outlet />
+                </main>
+              </div>
+              <Toaster />
+            </div>
+          </SidebarProvider>
+        </I18nProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
 }
 
+function HeaderTitle() {
+  const { t } = useI18n();
+  return <h1 className="font-semibold text-foreground">{t("app.title")}</h1>;
+}
+
 function ConsentIndicator() {
   const accepted = useStore((s) => s.consent.accepted);
+  const { t } = useI18n();
   if (accepted) return null;
   return (
     <Link to="/dades" className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/20 transition-colors">
       <span className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
-      Consentiment pendent
+      {t("consent.pending")}
     </Link>
   );
 }
