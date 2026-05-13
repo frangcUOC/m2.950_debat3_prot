@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Absence, ConsentRecord, Incident, IncidentComment, Professional, Shift } from "./types";
+import type { Absence, ConsentRecord, Incident, IncidentComment, Professional, Shift, SubstitutionDecision } from "./types";
 import { generateSeed } from "./seed";
 
 interface State {
