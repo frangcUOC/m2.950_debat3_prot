@@ -192,14 +192,97 @@ function Ingesta() {
         <p className="text-sm text-muted-foreground">Puja CSVs o introdueix dades manualment per inicialitzar el sistema.</p>
       </div>
 
+  const [validation, setValidation] = useState<ValidationIssue[] | null>(null);
+  const runValidation = () => {
+    const issues = validateProfessionals(store.professionals);
+    setValidation(issues);
+    const errors = issues.filter((i) => i.severity === "error").length;
+    const warnings = issues.filter((i) => i.severity === "warning").length;
+    if (issues.length === 0) {
+      toast.success("Validació correcta", { description: `${store.professionals.length} professionals sense incidències` });
+    } else {
+      toast.warning("Validació amb incidències", { description: `${errors} errors · ${warnings} avisos` });
+    }
+  };
+
+  return (
+    <div className="space-y-6 max-w-6xl">
+      <div>
+        <h2 className="text-2xl font-semibold tracking-tight">Ingesta de dades històriques</h2>
+        <p className="text-sm text-muted-foreground">Puja CSVs o introdueix dades manualment per inicialitzar el sistema.</p>
+      </div>
+
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" onClick={() => { store.loadSeed(); toast.success("Dades simulades carregades"); }}>
           <RefreshCw className="h-4 w-4 mr-1" /> Carregar dades simulades
+        </Button>
+        <Button variant="default" onClick={runValidation}>
+          <ShieldCheck className="h-4 w-4 mr-1" /> Validar dades
         </Button>
         <Button variant="outline" onClick={() => { store.reset(); toast.message("Dades buidades"); }}>
           <Trash2 className="h-4 w-4 mr-1" /> Buidar tot
         </Button>
       </div>
+
+      {validation !== null && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              {validation.length === 0 ? (
+                <><CheckCircle2 className="h-4 w-4 text-green-600" /> Validació de professionals</>
+              ) : (
+                <><AlertTriangle className="h-4 w-4 text-amber-600" /> Validació de professionals</>
+              )}
+            </CardTitle>
+            <CardDescription>
+              {store.professionals.length} professionals analitzats ·{" "}
+              <span className="text-destructive font-medium">{validation.filter((i) => i.severity === "error").length} errors</span> ·{" "}
+              <span className="text-amber-600 font-medium">{validation.filter((i) => i.severity === "warning").length} avisos</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {validation.length === 0 ? (
+              <Alert>
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertTitle>Tot correcte</AlertTitle>
+                <AlertDescription>Les dades dels professionals (rols, hores acumulades, disponibilitat, estat) són vàlides.</AlertDescription>
+              </Alert>
+            ) : (
+              <div className="max-h-80 overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Severitat</TableHead>
+                      <TableHead>Professional</TableHead>
+                      <TableHead>Camp</TableHead>
+                      <TableHead>Missatge</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {validation.map((issue, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          {issue.severity === "error" ? (
+                            <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Error</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="gap-1"><AlertTriangle className="h-3 w-3" /> Avís</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {issue.professionalName}
+                          <div className="text-xs text-muted-foreground">{issue.professionalId}</div>
+                        </TableCell>
+                        <TableCell><code className="text-xs">{issue.field}</code></TableCell>
+                        <TableCell className="text-sm">{issue.message}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="csv">
         <TabsList>
