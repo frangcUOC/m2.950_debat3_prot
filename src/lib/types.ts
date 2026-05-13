@@ -65,6 +65,30 @@ export interface ConsentRecord {
   user: string | null;
 }
 
+export type DecisionAction = "acceptada" | "rebutjada";
+
+export interface SubstitutionDecision {
+  id: string;
+  createdAt: string;
+  shiftId: string;
+  shiftLabel: string;
+  affectedProfessionalId: string | null;
+  affectedProfessionalName: string | null;
+  proposedProfessionalId: string;
+  proposedProfessionalName: string;
+  reason: string; // justificació de la recomanació
+  action: DecisionAction;
+  rejectReason?: string;
+}
+
+export const REJECT_REASONS = [
+  "No té experiència suficient",
+  "Conflicte personal/horari",
+  "Càrrega de treball elevada",
+  "Preferència de l'equip",
+  "Altres",
+] as const;
+
 export const INCIDENT_PRIORITIES: IncidentPriority[] = ["Baixa", "Mitjana", "Alta", "Crítica"];
 export const INCIDENT_STATUSES: IncidentStatus[] = ["Oberta", "En curs", "Resolta"];
 export const INCIDENT_TYPES: IncidentType[] = ["Torn", "Baixa", "Conflicte horari", "Altres"];

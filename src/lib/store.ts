@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Absence, ConsentRecord, Incident, IncidentComment, Professional, Shift } from "./types";
+import type { Absence, ConsentRecord, Incident, IncidentComment, Professional, Shift, SubstitutionDecision } from "./types";
 import { generateSeed } from "./seed";
 
 interface State {
@@ -8,6 +8,7 @@ interface State {
   shifts: Shift[];
   absences: Absence[];
   incidents: Incident[];
+  decisions: SubstitutionDecision[];
   consent: ConsentRecord;
   isPremium: boolean;
   initialized: boolean;
@@ -27,6 +28,8 @@ interface State {
   upsertIncident: (i: Incident) => void;
   removeIncident: (id: string) => void;
   addIncidentComment: (incidentId: string, comment: IncidentComment) => void;
+  addDecision: (d: SubstitutionDecision) => void;
+  clearDecisions: () => void;
 }
 
 const seed = generateSeed();
@@ -38,6 +41,7 @@ export const useStore = create<State>()(
       shifts: seed.shifts,
       absences: seed.absences,
       incidents: [],
+      decisions: [],
       consent: { accepted: false, acceptedAt: null, user: null },
       isPremium: false,
       initialized: true,
@@ -95,6 +99,8 @@ export const useStore = create<State>()(
             i.id === incidentId ? { ...i, comments: [...i.comments, comment] } : i
           ),
         })),
+      addDecision: (d) => set((st) => ({ decisions: [d, ...st.decisions] })),
+      clearDecisions: () => set({ decisions: [] }),
     }),
     { name: "tornai-store" }
   )
