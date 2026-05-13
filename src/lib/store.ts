@@ -99,6 +99,8 @@ export const useStore = create<State>()(
             i.id === incidentId ? { ...i, comments: [...i.comments, comment] } : i
           ),
         })),
+      addDecision: (d) => set((st) => ({ decisions: [d, ...st.decisions] })),
+      clearDecisions: () => set({ decisions: [] }),
     }),
     { name: "tornai-store" }
   )
