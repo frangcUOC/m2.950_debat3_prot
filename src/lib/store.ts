@@ -8,6 +8,7 @@ interface State {
   shifts: Shift[];
   absences: Absence[];
   incidents: Incident[];
+  decisions: SubstitutionDecision[];
   consent: ConsentRecord;
   isPremium: boolean;
   initialized: boolean;
