@@ -41,6 +41,7 @@ export const useStore = create<State>()(
       shifts: seed.shifts,
       absences: seed.absences,
       incidents: [],
+      decisions: [],
       consent: { accepted: false, acceptedAt: null, user: null },
       isPremium: false,
       initialized: true,
