@@ -10,9 +10,112 @@ import Papa from "papaparse";
 import { toast } from "sonner";
 import type { Professional, Shift, Absence, Role, ShiftSlot } from "@/lib/types";
 import { ROLES, SLOTS } from "@/lib/types";
-import { Download, Upload, RefreshCw, Trash2 } from "lucide-react";
+import { Download, Upload, RefreshCw, Trash2, ShieldCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+
+type ValidationIssue = {
+  severity: "error" | "warning";
+  professionalId: string;
+  professionalName: string;
+  field: string;
+  message: string;
+};
+
+const MAX_REASONABLE_HOURS = 250; // hores acumulades per període raonable
+const MIN_REASONABLE_HOURS = 0;
+
+function validateProfessionals(profs: Professional[]): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const seenIds = new Map<string, number>();
+
+  for (const p of profs) {
+    const tag = { professionalId: p.id, professionalName: p.name || "(sense nom)" };
+
+    // ID
+    if (!p.id || !p.id.trim()) {
+      issues.push({ ...tag, severity: "error", field: "id", message: "Identificador buit" });
+    } else {
+      seenIds.set(p.id, (seenIds.get(p.id) ?? 0) + 1);
+    }
+
+    // Nom
+    if (!p.name || !p.name.trim()) {
+      issues.push({ ...tag, severity: "error", field: "name", message: "Nom buit" });
+    }
+
+    // Rol
+    if (!ROLES.includes(p.role)) {
+      issues.push({
+        ...tag,
+        severity: "error",
+        field: "role",
+        message: `Rol no vàlid "${p.role}". Valors permesos: ${ROLES.join(", ")}`,
+      });
+    }
+
+    // Hores acumulades
+    if (typeof p.hoursAccrued !== "number" || Number.isNaN(p.hoursAccrued)) {
+      issues.push({ ...tag, severity: "error", field: "hoursAccrued", message: "Hores acumulades no és un número" });
+    } else if (p.hoursAccrued < MIN_REASONABLE_HOURS) {
+      issues.push({ ...tag, severity: "error", field: "hoursAccrued", message: `Hores acumulades negatives (${p.hoursAccrued})` });
+    } else if (p.hoursAccrued > MAX_REASONABLE_HOURS) {
+      issues.push({
+        ...tag,
+        severity: "warning",
+        field: "hoursAccrued",
+        message: `Hores acumulades molt elevades (${p.hoursAccrued} > ${MAX_REASONABLE_HOURS})`,
+      });
+    }
+
+    // Disponibilitat
+    if (!Array.isArray(p.availability) || p.availability.length === 0) {
+      issues.push({ ...tag, severity: "warning", field: "availability", message: "Sense franges de disponibilitat" });
+    } else {
+      const invalid = p.availability.filter((s) => !SLOTS.includes(s));
+      if (invalid.length) {
+        issues.push({
+          ...tag,
+          severity: "error",
+          field: "availability",
+          message: `Franja(es) no vàlida(es): ${invalid.join(", ")}`,
+        });
+      }
+      const dups = p.availability.filter((s, i, arr) => arr.indexOf(s) !== i);
+      if (dups.length) {
+        issues.push({ ...tag, severity: "warning", field: "availability", message: `Franges duplicades: ${[...new Set(dups)].join(", ")}` });
+      }
+    }
+
+    // Estat
+    if (!["actiu", "baixa", "vacances"].includes(p.status)) {
+      issues.push({ ...tag, severity: "error", field: "status", message: `Estat no vàlid "${p.status}"` });
+    }
+
+    // Centre
+    if (!p.center || !p.center.trim()) {
+      issues.push({ ...tag, severity: "warning", field: "center", message: "Centre no especificat" });
+    }
+  }
+
+  // IDs duplicats
+  for (const [id, count] of seenIds) {
+    if (count > 1) {
+      const p = profs.find((x) => x.id === id);
+      issues.push({
+        professionalId: id,
+        professionalName: p?.name ?? "(?)",
+        severity: "error",
+        field: "id",
+        message: `Identificador duplicat (${count} vegades)`,
+      });
+    }
+  }
+
+  return issues;
+}
 
 export const Route = createFileRoute("/ingesta")({
   head: () => ({ meta: [{ title: "Ingesta de dades — TornAI" }] }),
@@ -82,6 +185,19 @@ function Ingesta() {
     }
   };
 
+  const [validation, setValidation] = useState<ValidationIssue[] | null>(null);
+  const runValidation = () => {
+    const issues = validateProfessionals(store.professionals);
+    setValidation(issues);
+    const errors = issues.filter((i) => i.severity === "error").length;
+    const warnings = issues.filter((i) => i.severity === "warning").length;
+    if (issues.length === 0) {
+      toast.success("Validació correcta", { description: `${store.professionals.length} professionals sense incidències` });
+    } else {
+      toast.warning("Validació amb incidències", { description: `${errors} errors · ${warnings} avisos` });
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-6xl">
       <div>
@@ -93,10 +209,73 @@ function Ingesta() {
         <Button variant="secondary" onClick={() => { store.loadSeed(); toast.success("Dades simulades carregades"); }}>
           <RefreshCw className="h-4 w-4 mr-1" /> Carregar dades simulades
         </Button>
+        <Button variant="default" onClick={runValidation}>
+          <ShieldCheck className="h-4 w-4 mr-1" /> Validar dades
+        </Button>
         <Button variant="outline" onClick={() => { store.reset(); toast.message("Dades buidades"); }}>
           <Trash2 className="h-4 w-4 mr-1" /> Buidar tot
         </Button>
       </div>
+
+      {validation !== null && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              {validation.length === 0 ? (
+                <><CheckCircle2 className="h-4 w-4 text-green-600" /> Validació de professionals</>
+              ) : (
+                <><AlertTriangle className="h-4 w-4 text-amber-600" /> Validació de professionals</>
+              )}
+            </CardTitle>
+            <CardDescription>
+              {store.professionals.length} professionals analitzats ·{" "}
+              <span className="text-destructive font-medium">{validation.filter((i) => i.severity === "error").length} errors</span> ·{" "}
+              <span className="text-amber-600 font-medium">{validation.filter((i) => i.severity === "warning").length} avisos</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {validation.length === 0 ? (
+              <Alert>
+                <CheckCircle2 className="h-4 w-4" />
+                <AlertTitle>Tot correcte</AlertTitle>
+                <AlertDescription>Les dades dels professionals (rols, hores acumulades, disponibilitat, estat) són vàlides.</AlertDescription>
+              </Alert>
+            ) : (
+              <div className="max-h-80 overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Severitat</TableHead>
+                      <TableHead>Professional</TableHead>
+                      <TableHead>Camp</TableHead>
+                      <TableHead>Missatge</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {validation.map((issue, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>
+                          {issue.severity === "error" ? (
+                            <Badge variant="destructive" className="gap-1"><XCircle className="h-3 w-3" /> Error</Badge>
+                          ) : (
+                            <Badge variant="secondary" className="gap-1"><AlertTriangle className="h-3 w-3" /> Avís</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          {issue.professionalName}
+                          <div className="text-xs text-muted-foreground">{issue.professionalId}</div>
+                        </TableCell>
+                        <TableCell><code className="text-xs">{issue.field}</code></TableCell>
+                        <TableCell className="text-sm">{issue.message}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs defaultValue="csv">
         <TabsList>
