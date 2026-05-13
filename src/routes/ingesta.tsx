@@ -10,9 +10,112 @@ import Papa from "papaparse";
 import { toast } from "sonner";
 import type { Professional, Shift, Absence, Role, ShiftSlot } from "@/lib/types";
 import { ROLES, SLOTS } from "@/lib/types";
-import { Download, Upload, RefreshCw, Trash2 } from "lucide-react";
+import { Download, Upload, RefreshCw, Trash2, ShieldCheck, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+
+type ValidationIssue = {
+  severity: "error" | "warning";
+  professionalId: string;
+  professionalName: string;
+  field: string;
+  message: string;
+};
+
+const MAX_REASONABLE_HOURS = 250; // hores acumulades per període raonable
+const MIN_REASONABLE_HOURS = 0;
+
+function validateProfessionals(profs: Professional[]): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+  const seenIds = new Map<string, number>();
+
+  for (const p of profs) {
+    const tag = { professionalId: p.id, professionalName: p.name || "(sense nom)" };
+
+    // ID
+    if (!p.id || !p.id.trim()) {
+      issues.push({ ...tag, severity: "error", field: "id", message: "Identificador buit" });
+    } else {
+      seenIds.set(p.id, (seenIds.get(p.id) ?? 0) + 1);
+    }
+
+    // Nom
+    if (!p.name || !p.name.trim()) {
+      issues.push({ ...tag, severity: "error", field: "name", message: "Nom buit" });
+    }
+
+    // Rol
+    if (!ROLES.includes(p.role)) {
+      issues.push({
+        ...tag,
+        severity: "error",
+        field: "role",
+        message: `Rol no vàlid "${p.role}". Valors permesos: ${ROLES.join(", ")}`,
+      });
+    }
+
+    // Hores acumulades
+    if (typeof p.hoursAccrued !== "number" || Number.isNaN(p.hoursAccrued)) {
+      issues.push({ ...tag, severity: "error", field: "hoursAccrued", message: "Hores acumulades no és un número" });
+    } else if (p.hoursAccrued < MIN_REASONABLE_HOURS) {
+      issues.push({ ...tag, severity: "error", field: "hoursAccrued", message: `Hores acumulades negatives (${p.hoursAccrued})` });
+    } else if (p.hoursAccrued > MAX_REASONABLE_HOURS) {
+      issues.push({
+        ...tag,
+        severity: "warning",
+        field: "hoursAccrued",
+        message: `Hores acumulades molt elevades (${p.hoursAccrued} > ${MAX_REASONABLE_HOURS})`,
+      });
+    }
+
+    // Disponibilitat
+    if (!Array.isArray(p.availability) || p.availability.length === 0) {
+      issues.push({ ...tag, severity: "warning", field: "availability", message: "Sense franges de disponibilitat" });
+    } else {
+      const invalid = p.availability.filter((s) => !SLOTS.includes(s));
+      if (invalid.length) {
+        issues.push({
+          ...tag,
+          severity: "error",
+          field: "availability",
+          message: `Franja(es) no vàlida(es): ${invalid.join(", ")}`,
+        });
+      }
+      const dups = p.availability.filter((s, i, arr) => arr.indexOf(s) !== i);
+      if (dups.length) {
+        issues.push({ ...tag, severity: "warning", field: "availability", message: `Franges duplicades: ${[...new Set(dups)].join(", ")}` });
+      }
+    }
+
+    // Estat
+    if (!["actiu", "baixa", "vacances"].includes(p.status)) {
+      issues.push({ ...tag, severity: "error", field: "status", message: `Estat no vàlid "${p.status}"` });
+    }
+
+    // Centre
+    if (!p.center || !p.center.trim()) {
+      issues.push({ ...tag, severity: "warning", field: "center", message: "Centre no especificat" });
+    }
+  }
+
+  // IDs duplicats
+  for (const [id, count] of seenIds) {
+    if (count > 1) {
+      const p = profs.find((x) => x.id === id);
+      issues.push({
+        professionalId: id,
+        professionalName: p?.name ?? "(?)",
+        severity: "error",
+        field: "id",
+        message: `Identificador duplicat (${count} vegades)`,
+      });
+    }
+  }
+
+  return issues;
+}
 
 export const Route = createFileRoute("/ingesta")({
   head: () => ({ meta: [{ title: "Ingesta de dades — TornAI" }] }),
