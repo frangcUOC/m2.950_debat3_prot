@@ -28,6 +28,8 @@ interface State {
   upsertIncident: (i: Incident) => void;
   removeIncident: (id: string) => void;
   addIncidentComment: (incidentId: string, comment: IncidentComment) => void;
+  addDecision: (d: SubstitutionDecision) => void;
+  clearDecisions: () => void;
 }
 
 const seed = generateSeed();
