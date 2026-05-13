@@ -185,13 +185,6 @@ function Ingesta() {
     }
   };
 
-  return (
-    <div className="space-y-6 max-w-6xl">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">Ingesta de dades històriques</h2>
-        <p className="text-sm text-muted-foreground">Puja CSVs o introdueix dades manualment per inicialitzar el sistema.</p>
-      </div>
-
   const [validation, setValidation] = useState<ValidationIssue[] | null>(null);
   const runValidation = () => {
     const issues = validateProfessionals(store.professionals);
